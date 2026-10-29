@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四六级词汇闯关 · 三档难度</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: #e8e8e8;
+  }
+  .app {
+    width: 100%;
+    max-width: 680px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(16px);
+    border-radius: 24px;
+    padding: 36px 32px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  }
+  h1 {
+    font-size: 26px;
+    text-align: center;
+    margin-bottom: 6px;
+    background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 28px;
+    letter-spacing: 0.5px;
+  }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ===== 首页 ===== */
+  .home-box { text-align: center; padding: 8px 0; }
+  .home-box p {
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 28px;
+  }
+  .difficulty-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .diff-card {
+    padding: 20px 22px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.25s;
+    border: 1.5px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+  }
+  .diff-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+  }
+  .diff-card.easy::before { background: #22c55e; }
+  .diff-card.medium::before { background: #f59e0b; }
+  .diff-card.hell::before { background: #ef4444; }
+  .diff-card:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateX(4px);
+  }
+  .diff-card .diff-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .diff-card.easy .diff-title { color: #4ade80; }
+  .diff-card.medium .diff-title { color: #fbbf24; }
+  .diff-card.hell .diff-title { color: #f87171; }
+  .diff-card .diff-desc {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+  .diff-card .diff-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .diff-card.easy .diff-badge { background: rgba(34,197,94,0.15); color: #4ade80; }
+  .diff-card.medium .diff-badge { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .diff-card.hell .diff-badge { background: rgba(239,68,68,0.15); color: #f87171; }
+
+  /* ===== 游戏页 ===== */
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #64748b;
+  }
+  .hud .hud-left { display: flex; gap: 16px; align-items: center; }
+  .hud .score-val { color: #60a5fa; font-weight: 800; font-size: 20px; }
+  .hud .timer {
+    font-size: 22px;
+    font-weight: 800;
+    color: #f87171;
+    font-variant-numeric: tabular-nums;
+    min-width: 32px;
+    text-align: right;
+  }
+  .hud .timer.safe { color: #4ade80; }
+  .progress-bar {
+    height: 5px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.35s ease;
+    width: 0%;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  }
+  .question-card {
+    background: rgba(255,255,255,0.04);
+    border-radius: 18px;
+    padding: 32px 24px;
+    text-align: center;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.06);
+    min-height: 130px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .question-label {
+    font-size: 11px;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+  }
+  .question-text {
+    font-size: 30px;
+    font-weight: 800;
+    color: #f1f5f9;
+    line-height: 1.35;
+  }
+  .question-hint {
+    font-size: 13px;
+    color: #475569;
+    margin-top: 10px;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 18px;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 17px;
+    color: #e2e8f0;
+    text-align: left;
+    width: 100%;
+  }
+  .option-btn:hover:not(:disabled) {
+    background: rgba(255,255,255,0.09);
+    border-color: rgba(96,165,250,0.4);
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-btn .letter {
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.08);
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #64748b;
+    flex-shrink: 0;
+  }
+  .option-btn .word-text { flex: 1; font-weight: 600; letter-spacing: 0.3px; }
+  .option-btn .speaker {
+    font-size: 17px;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .option-btn .speaker:hover { opacity: 1; }
+  .option-btn.correct {
+    background: rgba(34,197,94,0.12);
+    border-color: #22c55e;
+  }
+  .option-btn.correct .letter { background: #22c55e; color: #fff; }
+  .option-btn.wrong {
+    background: rgba(239,68,68,0.12);
+    border-color: #ef4444;
+  }
+  .option-btn.wrong .letter { background: #ef4444; color: #fff; }
+  .option-btn.reveal-correct {
+    border-color: #22c55e;
+    border-style: dashed;
+  }
+  .feedback {
+    margin-top: 18px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.65;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct-fb {
+    background: rgba(34,197,94,0.08);
+    border-left: 3px solid #22c55e;
+    color: #86efac;
+  }
+  .feedback.wrong-fb {
+    background: rgba(239,68,68,0.08);
+    border-left: 3px solid #ef4444;
+    color: #fca5a5;
+  }
+  .feedback .fb-title { font-weight: 800; margin-bottom: 4px; }
+  .btn-row { margin-top: 22px; text-align: center; }
+  .btn {
+    padding: 13px 32px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(99,102,241,0.35); }
+  .btn:active { transform: translateY(0); }
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.18);
+    color: #94a3b8;
+  }
+  .btn-outline:hover { background: rgba(255,255,255,0.06); box-shadow: none; }
+
+  /* ===== 结算页 ===== */
+  .result-box { text-align: center; padding: 16px 0; }
+  .result-stars { font-size: 44px; margin-bottom: 12px; letter-spacing: 8px; }
+  .result-score {
+    font-size: 60px;
+    font-weight: 800;
+    background: linear-gradient(90deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .result-detail { color: #64748b; font-size: 14px; margin-bottom: 8px; line-height: 1.6; }
+  .result-badge {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    letter-spacing: 0.5px;
+  }
+  .result-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .hidden { display: none !important; }
+
+  @media (max-width: 480px) {
+    .app { padding: 24px 18px; border-radius: 18px; }
+    .question-text { font-size: 24px; }
+    .option-btn { font-size: 15px; padding: 13px 14px; }
+    .result-score { font-size: 46px; }
+    h1 { font-size: 21px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>四六级词汇闯关</h1>
+  <p class="subtitle">形近词辨析 · 三档难度挑战</p>
+
+  <!-- ==================== 首页 ==================== -->
+  <div id="screen-home" class="screen active">
+    <div class="home-box">
+      <p>
+        看中文释义，从 4 个形近词中选出正确答案。<br>
+        选择难度开始挑战，每难度 20 题随机抽 8 题。
+      </p>
+      <div class="difficulty-grid">
+        <div class="diff-card easy" onclick="startGame('easy')">
+          <div class="diff-title">🌱 初级 <span class="diff-badge">基础形近词</span></div>
+          <div class="diff-desc">affect / effect、adapt / adopt 等经典易混词。不限时，适合热身。</div>
+        </div>
+        <div class="diff-card medium" onclick="startGame('medium')">
+          <div class="diff-title">🔥 中级 <span class="diff-badge">进阶辨析</span></div>
+          <div class="diff-desc">considerable / considerate、industrial / industrious 等词形相近但含义迥异的词组。不限时。</div>
+        </div>
+        <div class="diff-card hell" onclick="startGame('hell')">
+          <div class="diff-title">💀 地狱 <span class="diff-badge">限时 10 秒</span></div>
+          <div class="diff-desc">council / counsel、discreet / discrete 等极易混淆词。每题 10 秒，超时判错。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 游戏页 ==================== -->
+  <div id="screen-game" class="screen">
+    <div class="hud">
+      <div class="hud-left">
+        <span id="hud-diff-label">初级</span>
+        <span>得分 <span class="score-val" id="hud-score">0</span></span>
+      </div>
+      <span class="timer safe" id="hud-timer">—</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="question-card">
+      <div class="question-label">中文释义</div>
+      <div class="question-text" id="question-text">—</div>
+      <div class="question-hint" id="question-hint"></div>
+    </div>
+    <div class="options" id="options-container"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="btn-row">
+      <button class="btn btn-outline" id="btn-next" onclick="nextQuestion()" style="display:none;">下一题 →</button>
+    </div>
+  </div>
+
+  <!-- ==================== 结算页 ==================== -->
+  <div id="screen-result" class="screen">
+    <div class="result-box">
+      <div class="result-stars" id="result-stars">★★★</div>
+      <div class="result-score" id="result-score">0</div>
+      <div class="result-badge" id="result-badge"></div>
+      <div class="result-detail" id="result-detail"></div>
+      <div class="result-actions">
+        <button class="btn" onclick="restartSame()">再玩一次</button>
+        <button class="btn btn-outline" onclick="goHome()">选择难度</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 题库：共 60 题，三档难度各 20 题
+// 词汇来源：四六级高频形近词/易混词辨析考点
+// ============================================================
+const QUESTION_POOL = [
+  // ==================== 初级：20 题 ====================
+  { level:'easy', meaning:'影响；假装', answer:'affect', distractors:['effect','affection','afflict'], hint:'动词，~ sb/sth 表示对……产生作用' },
+  { level:'easy', meaning:'结果；效果', answer:'effect', distractors:['affect','effort','afford'], hint:'名词，have an ~ on' },
+  { level:'easy', meaning:'适应；改编', answer:'adapt', distractors:['adopt','adept','admit'], hint:'~ to 适应新环境' },
+  { level:'easy', meaning:'采用；收养', answer:'adopt', distractors:['adapt','adept','adore'], hint:'~ a plan / a child' },
+  { level:'easy', meaning:'相当大/多的', answer:'considerable', distractors:['considerate','considering','considered'], hint:'修饰数量或程度，a ~ amount' },
+  { level:'easy', meaning:'体谅的；考虑周到的', answer:'considerate', distractors:['considerable','considering','considered'], hint:'形容人，It‘s ~ of you to...' },
+  { level:'easy', meaning:'经济的；节约的', answer:'economical', distractors:['economic','economy','economics'], hint:'形容省钱、划算' },
+  { level:'easy', meaning:'经济的；经济学的', answer:'economic', distractors:['economical','economy','ecologic'], hint:'~ growth / policy' },
+  { level:'easy', meaning:'工业的', answer:'industrial', distractors:['industrious','industry','industrialize'], hint:'~ revolution' },
+  { level:'easy', meaning:'勤奋的；努力的', answer:'industrious', distractors:['industrial','industry','industrialized'], hint:'形容人勤劳' },
+  { level:'easy', meaning:'推断；推论', answer:'infer', distractors:['imply','refer','prefer'], hint:'读者从文中 ~ 出含义' },
+  { level:'easy', meaning:'暗示；隐含', answer:'imply', distractors:['infer','reply','apply'], hint:'作者的话 ~ 了某种态度' },
+  { level:'easy', meaning:'历史的；历史上著名的', answer:'historic', distractors:['historical','history','historian'], hint:'a ~ moment / event' },
+  { level:'easy', meaning:'与历史有关的；历史学的', answer:'historical', distractors:['historic','history','historically'], hint:'~ research / novel' },
+  { level:'easy', meaning:'值得尊敬的', answer:'respectable', distractors:['respectful','respective','respected'], hint:'形容人或行为体面' },
+  { level:'easy', meaning:'尊敬人的；恭敬的', answer:'respectful', distractors:['respectable','respective','respected'], hint:'be ~ to sb' },
+  { level:'easy', meaning:'各自的；分别的', answer:'respective', distractors:['respectable','respectful','respected'], hint:'their ~ houses' },
+  { level:'easy', meaning:'谨慎的；小心的', answer:'discreet', distractors:['discrete','discreetly','discretion'], hint:'形容言行谨慎，不张扬' },
+  { level:'easy', meaning:'离散的；不连续的', answer:'discrete', distractors:['discreet','discreetly','discretion'], hint:'数学/统计用语，~ data' },
+  { level:'easy', meaning:'幻觉；错觉', answer:'illusion', distractors:['delusion','allusion','elusion'], hint:'视觉或认知上的假象' },
+
+  // ==================== 中级：20 题 ====================
+  { level:'medium', meaning:'明显的；清楚的', answer:'distinct', distractors:['distinctive','distinction','distinguish'], hint:'~ from，与……不同' },
+  { level:'medium', meaning:'有特色的；独特的', answer:'distinctive', distractors:['distinct','distinction','distinguish'], hint:'~ feature / style' },
+  { level:'medium', meaning:'强烈的；紧张的', answer:'intense', distractors:['intensive','intensity','intensify'], hint:'~ heat / competition' },
+  { level:'medium', meaning:'加强的；集中的', answer:'intensive', distractors:['intense','intensity','intensify'], hint:'~ reading / course' },
+  { level:'medium', meaning:'难以置信的', answer:'incredible', distractors:['incredulous','incredibly','credible'], hint:'形容事物令人难以置信' },
+  { level:'medium', meaning:'不相信的；怀疑的', answer:'incredulous', distractors:['incredible','incredibly','credible'], hint:'形容人的表情或态度' },
+  { level:'medium', meaning:'推动；驱使', answer:'impel', distractors:['compel','expel','repel'], hint:'~ sb to do sth' },
+  { level:'medium', meaning:'强迫；迫使', answer:'compel', distractors:['impel','expel','repel'], hint:'~ sb to do sth（语气更强）' },
+  { level:'medium', meaning:'补足物；补全', answer:'complement', distractors:['compliment','complementary','complimentary'], hint:'~ to sth，与……互补' },
+  { level:'medium', meaning:'恭维；称赞', answer:'compliment', distractors:['complement','complementary','complimentary'], hint:'pay sb a ~' },
+  { level:'medium', meaning:'议事机构；委员会', answer:'council', distractors:['counsel','consul','console'], hint:'city ~ / student ~' },
+  { level:'medium', meaning:'忠告；商议', answer:'counsel', distractors:['council','consul','console'], hint:'~ sb to do sth' },
+  { level:'medium', meaning:'有缺陷的；有毛病的', answer:'defective', distractors:['deficient','defect','deficit'], hint:'~ goods / eyesight' },
+  { level:'medium', meaning:'不足的；缺乏的', answer:'deficient', distractors:['defective','defect','deficit'], hint:'~ in vitamin C' },
+  { level:'medium', meaning:'防止；避免', answer:'avert', distractors:['avoid','averse','aversion'], hint:'~ disaster / crisis' },
+  { level:'medium', meaning:'避免；避开', answer:'avoid', distractors:['avert','averse','aversion'], hint:'~ doing sth' },
+  { level:'medium', meaning:'用电的；电动的', answer:'electrical', distractors:['electric','electricity','electrify'], hint:'~ equipment / engineer' },
+  { level:'medium', meaning:'电的；导电的', answer:'electric', distractors:['electrical','electricity','electrify'], hint:'~ car / shock' },
+  { level:'medium', meaning:'暗含的；含蓄的', answer:'implicit', distractors:['explicit','implication','implicate'], hint:'~ meaning / trust' },
+  { level:'medium', meaning:'明晰的；直截了当的', answer:'explicit', distractors:['implicit','implication','implicate'], hint:'~ instructions / warning' },
+
+  // ==================== 地狱：20 题 ====================
+  { level:'hell', meaning:'幻觉；错觉', answer:'illusion', distractors:['delusion','allusion','elusion'], hint:'视觉/感知上的假象，optical ~' },
+  { level:'hell', meaning:'欺骗；妄想', answer:'delusion', distractors:['illusion','allusion','elusion'], hint:'精神层面的错误信念' },
+  { level:'hell', meaning:'暗指；典故', answer:'allusion', distractors:['illusion','delusion','elusion'], hint:'make an ~ to sth' },
+  { level:'hell', meaning:'有特色的；独特的', answer:'distinctive', distractors:['distinct','distinctly','distinction'], hint:'区别于同类，~ feature' },
+  { level:'hell', meaning:'清楚的；明显的', answer:'distinct', distractors:['distinctive','distinctly','distinction'], hint:'~ from，清晰可辨' },
+  { level:'hell', meaning:'预兆；前兆', answer:'premonition', distractors:['premonitory','premise','premium'], hint:'have a ~ of danger' },
+  { level:'hell', meaning:'前提；假定', answer:'premise', distractors:['premonition','premium','premises'], hint:'on the ~ that...' },
+  { level:'hell', meaning:'保险费；溢价', answer:'premium', distractors:['premise','premonition','premises'], hint:'pay a ~ / at a ~' },
+  { level:'hell', meaning:'平凡的；普通的', answer:'mediocre', distractors:['mediate','meditate','medium'], hint:'~ performance / student' },
+  { level:'hell', meaning:'调解；斡旋', answer:'mediate', distractors:['mediocre','meditate','medium'], hint:'~ between A and B' },
+  { level:'hell', meaning:'沉思；冥想', answer:'meditate', distractors:['mediocre','mediate','medium'], hint:'~ on sth' },
+  { level:'hell', meaning:'丰富的；多产的', answer:'prolific', distractors:['profound','profuse','profitable'], hint:'~ writer / scorer' },
+  { level:'hell', meaning:'深刻的；深远的', answer:'profound', distractors:['prolific','profuse','profitable'], hint:'~ impact / knowledge' },
+  { level:'hell', meaning:'大量的；慷慨的', answer:'profuse', distractors:['prolific','profound','profitable'], hint:'~ apologies / bleeding' },
+  { level:'hell', meaning:'短暂的；转瞬即逝的', answer:'transient', distractors:['transparent','transition','transit'], hint:'~ pleasure / population' },
+  { level:'hell', meaning:'透明的；显而易见的', answer:'transparent', distractors:['transient','transition','transit'], hint:'~ material / meaning' },
+  { level:'hell', meaning:'过渡；转变', answer:'transition', distractors:['transient','transparent','transit'], hint:'~ period / from A to B' },
+  { level:'hell', meaning:'模糊的；不明确的', answer:'ambiguous', distractors:['ambitious','ambivalent','amphibious'], hint:'~ statement / attitude' },
+  { level:'hell', meaning:'有雄心的；有抱负的', answer:'ambitious', distractors:['ambiguous','ambivalent','amphibious'], hint:'~ plan / person' },
+  { level:'hell', meaning:'矛盾的；好恶交织的', answer:'ambivalent', distractors:['ambiguous','ambitious','amphibious'], hint:'~ feelings / attitude' }
+];
+
+// ============================================================
+// 配置
+// ============================================================
+const QUESTIONS_PER_GAME = 8;
+const DIFFICULTY_CONFIG = {
+  easy:   { label: '初级', scorePerQ: 10, timeLimit: 0 },
+  medium: { label: '中级', scorePerQ: 15, timeLimit: 0 },
+  hell:   { label: '地狱', scorePerQ: 20, timeLimit: 10 }
+};
+
+// ============================================================
+// 状态
+// ============================================================
+let currentDifficulty = 'easy';
+let gameQuestions = [];
+let qIndex = 0;
+let score = 0;
+let correctCount = 0;
+let answered = false;
+let timerId = null;
+let timeLeft = 0;
+let totalTime = 0;
+
+// ============================================================
+// 语音合成
+// ============================================================
+let englishVoice = null;
+function loadVoices() {
+  const voices = speechSynthesis.getVoices();
+  const preferred = ['Google US English','Microsoft Zira Desktop - English (United States)','Samantha','Alex'];
+  for (const name of preferred) {
+    const v = voices.find(v => v.name === name);
+    if (v) { englishVoice = v; return; }
+  }
+  englishVoice = voices.find(v => v.lang && v.lang.startsWith('en')) || null;
+}
+if ('speechSynthesis' in window) {
+  speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
+}
+function speakWord(word, event) {
+  if (event) event.stopPropagation();
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(word);
+  u.lang = 'en-US';
+  u.rate = 0.85;
+  if (englishVoice) u.voice = englishVoice;
+  speechSynthesis.speak(u);
+}
+
+// ============================================================
+// 工具
+// ============================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ============================================================
+// 游戏流程
+// ============================================================
+function startGame(diff) {
+  currentDifficulty = diff;
+  const cfg = DIFFICULTY_CONFIG[diff];
+  const pool = QUESTION_POOL.filter(q => q.level === diff);
+  gameQuestions = shuffle(pool).slice(0, QUESTIONS_PER_GAME);
+
+  qIndex = 0;
+  score = 0;
+  correctCount = 0;
+  totalTime = 0;
+  clearTimer();
+
+  document.getElementById('hud-diff-label').textContent = cfg.label;
+  document.getElementById('hud-score').textContent = '0';
+  document.getElementById('progress-fill').style.width = '0%';
+
+  showScreen('screen-game');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  clearTimer();
+  document.getElementById('btn-next').style.display = 'none';
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.innerHTML = '';
+
+  const q = gameQuestions[qIndex];
+  document.getElementById('question-text').textContent = q.meaning;
+  document.getElementById('question-hint').textContent = '从下列形近词中选出对应英文';
+
+  const allOpts = shuffle([q.answer, ...q.distractors]);
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+  const letters = ['A','B','C','D'];
+
+  allOpts.forEach((word, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.dataset.word = word;
+    btn.innerHTML = `
+      <span class="letter">${letters[idx]}</span>
+      <span class="word-text">${word}</span>
+      <span class="speaker" onclick="speakWord('${word}', event)" title="朗读发音">🔊</span>
+    `;
+    btn.addEventListener('click', () => selectAnswer(btn, q.answer, word));
+    container.appendChild(btn);
+  });
+
+  // 地狱难度：启动计时器
+  const cfg = DIFFICULTY_CONFIG[currentDifficulty];
+  const timerEl = document.getElementById('hud-timer');
+  if (cfg.timeLimit > 0) {
+    timeLeft = cfg.timeLimit;
+    timerEl.textContent = timeLeft + 's';
+    timerEl.className = 'timer safe';
+    timerEl.style.display = '';
+    timerId = setInterval(() => {
+      timeLeft--;
+      if (timeLeft <= 3) timerEl.className = 'timer';
+      timerEl.textContent = timeLeft + 's';
+      if (timeLeft <= 0) {
+        clearTimer();
+        if (!answered) timeoutAnswer(q.answer);
+      }
+    }, 1000);
+  } else {
+    timerEl.style.display = 'none';
+  }
+}
+
+function selectAnswer(btn, correctAnswer, selectedWord) {
+  if (answered) return;
+  answered = true;
+  clearTimer();
+
+  const cfg = DIFFICULTY_CONFIG[currentDifficulty];
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach(b => b.disabled = true);
+
+  const isCorrect = selectedWord === correctAnswer;
+  const fb = document.getElementById('feedback');
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    score += cfg.scorePerQ;
+    correctCount++;
+    fb.className = 'feedback correct-fb show';
+    fb.innerHTML = `<div class="fb-title">✓ 正确 +${cfg.scorePerQ}</div>${gameQuestions[qIndex].hint}`;
+  } else {
+    btn.classList.add('wrong');
+    allBtns.forEach(b => {
+      if (b.dataset.word === correctAnswer) b.classList.add('reveal-correct');
+    });
+    fb.className = 'feedback wrong-fb show';
+    fb.innerHTML = `<div class="fb-title">✗ 正确答案：${correctAnswer}</div>${gameQuestions[qIndex].hint}`;
+  }
+
+  document.getElementById('hud-score').textContent = score;
+  updateProgress();
+  showNextBtn();
+}
+
+function timeoutAnswer(correctAnswer) {
+  answered = true;
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach(b => {
+    b.disabled = true;
+    if (b.dataset.word === correctAnswer) b.classList.add('reveal-correct');
+  });
+  document.getElementById('hud-timer').textContent = '0s';
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback wrong-fb show';
+  fb.innerHTML = `<div class="fb-title">⏰ 超时！正确答案：${correctAnswer}</div>${gameQuestions[qIndex].hint}`;
+  updateProgress();
+  showNextBtn();
+}
+
+function showNextBtn() {
+  const btn = document.getElementById('btn-next');
+  btn.style.display = 'inline-block';
+  if (qIndex >= gameQuestions.length - 1) {
+    btn.textContent = '查看结果 →';
+  } else {
+    btn.textContent = '下一题 →';
+  }
+}
+
+function updateProgress() {
+  const pct = ((qIndex + 1) / gameQuestions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function nextQuestion() {
+  if (!answered) return;
+  qIndex++;
+  if (qIndex < gameQuestions.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function clearTimer() {
+  if (timerId) { clearInterval(timerId); timerId = null; }
+}
+
+// ============================================================
+// 结算
+// ============================================================
+function showResult() {
+  clearTimer();
+  speechSynthesis.cancel();
+  showScreen('screen-result');
+
+  const cfg = DIFFICULTY_CONFIG[currentDifficulty];
+  const maxScore = QUESTIONS_PER_GAME * cfg.scorePerQ;
+  const pct = score / maxScore;
+
+  let stars = 1;
+  if (pct >= 0.9) stars = 5;
+  else if (pct >= 0.75) stars = 4;
+  else if (pct >= 0.5) stars = 3;
+  else if (pct >= 0.25) stars = 2;
+
+  const starEl = document.getElementById('result-stars');
+  starEl.textContent = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+  starEl.style.color = currentDifficulty === 'hell' ? '#f87171' : (currentDifficulty === 'medium' ? '#fbbf24' : '#4ade80');
+
+  document.getElementById('result-score').textContent = score;
+  document.getElementById('result-badge').textContent = cfg.label + ' · ' + (stars >= 4 ? '表现优异' : stars >= 3 ? '继续加油' : '再练练吧');
+  document.getElementById('result-badge').style.background = currentDifficulty === 'hell' ? 'rgba(239,68,68,0.15)' : (currentDifficulty === 'medium' ? 'rgba(245,158,11,0.15)' : 'rgba(34,197,94,0.15)');
+  document.getElementById('result-badge').style.color = currentDifficulty === 'hell' ? '#f87171' : (currentDifficulty === 'medium' ? '#fbbf24' : '#4ade80');
+
+  document.getElementById('result-detail').textContent =
+    `共 ${QUESTIONS_PER_GAME} 题，答对 ${correctCount} 题，正确率 ${Math.round((correctCount / QUESTIONS_PER_GAME) * 100)}%`;
+}
+
+function restartSame() {
+  startGame(currentDifficulty);
+}
+
+function goHome() {
+  clearTimer();
+  speechSynthesis.cancel();
+  showScreen('screen-home');
+}
+
+// 初始化
+loadVoices();
+</script>
+</body>
+</html>
