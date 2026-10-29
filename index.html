@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>四六级词汇闯关 · 三档难度</title>
+<title>四六级词汇学习 · 单词与造句</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -18,7 +18,7 @@
   }
   .app {
     width: 100%;
-    max-width: 680px;
+    max-width: 700px;
     background: rgba(255,255,255,0.05);
     backdrop-filter: blur(16px);
     border-radius: 24px;
@@ -52,16 +52,16 @@
     color: #94a3b8;
     font-size: 14px;
     line-height: 1.8;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
   }
-  .difficulty-grid {
+  .mode-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 14px;
     margin-bottom: 8px;
   }
-  .diff-card {
-    padding: 20px 22px;
+  .mode-card {
+    padding: 22px 24px;
     border-radius: 16px;
     cursor: pointer;
     transition: all 0.25s;
@@ -71,21 +71,21 @@
     position: relative;
     overflow: hidden;
   }
-  .diff-card::before {
+  .mode-card::before {
     content: '';
     position: absolute;
     left: 0; top: 0; bottom: 0;
     width: 4px;
     border-radius: 0 4px 4px 0;
   }
-  .diff-card.easy::before { background: #22c55e; }
-  .diff-card.medium::before { background: #f59e0b; }
-  .diff-card.hell::before { background: #ef4444; }
-  .diff-card:hover {
+  .mode-card.word-mode::before { background: #3b82f6; }
+  .mode-card.sentence-mode::before { background: #a78bfa; }
+  .mode-card.mixed-mode::before { background: linear-gradient(180deg, #3b82f6, #a78bfa); }
+  .mode-card:hover {
     background: rgba(255,255,255,0.08);
     transform: translateX(4px);
   }
-  .diff-card .diff-title {
+  .mode-card .mode-title {
     font-size: 18px;
     font-weight: 700;
     margin-bottom: 4px;
@@ -93,50 +93,52 @@
     align-items: center;
     gap: 10px;
   }
-  .diff-card.easy .diff-title { color: #4ade80; }
-  .diff-card.medium .diff-title { color: #fbbf24; }
-  .diff-card.hell .diff-title { color: #f87171; }
-  .diff-card .diff-desc {
+  .mode-card.word-mode .mode-title { color: #60a5fa; }
+  .mode-card.sentence-mode .mode-title { color: #a78bfa; }
+  .mode-card.mixed-mode .mode-title { color: #e2e8f0; }
+  .mode-card .mode-desc {
     font-size: 13px;
     color: #64748b;
     line-height: 1.5;
   }
-  .diff-card .diff-badge {
+  .mode-card .mode-badge {
     font-size: 11px;
     padding: 2px 8px;
     border-radius: 20px;
     font-weight: 600;
     letter-spacing: 0.5px;
+    background: rgba(255,255,255,0.08);
+    color: #94a3b8;
   }
-  .diff-card.easy .diff-badge { background: rgba(34,197,94,0.15); color: #4ade80; }
-  .diff-card.medium .diff-badge { background: rgba(245,158,11,0.15); color: #fbbf24; }
-  .diff-card.hell .diff-badge { background: rgba(239,68,68,0.15); color: #f87171; }
 
   /* ===== 游戏页 ===== */
   .hud {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     font-size: 13px;
     color: #64748b;
   }
-  .hud .hud-left { display: flex; gap: 16px; align-items: center; }
+  .hud .hud-left { display: flex; gap: 14px; align-items: center; }
   .hud .score-val { color: #60a5fa; font-weight: 800; font-size: 20px; }
-  .hud .timer {
-    font-size: 22px;
-    font-weight: 800;
-    color: #f87171;
-    font-variant-numeric: tabular-nums;
-    min-width: 32px;
-    text-align: right;
+  .hud .mode-tag {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(59,130,246,0.15);
+    color: #60a5fa;
   }
-  .hud .timer.safe { color: #4ade80; }
+  .hud .mode-tag.sentence {
+    background: rgba(167,139,250,0.15);
+    color: #a78bfa;
+  }
   .progress-bar {
     height: 5px;
     background: rgba(255,255,255,0.08);
     border-radius: 3px;
-    margin-bottom: 24px;
+    margin-bottom: 22px;
     overflow: hidden;
   }
   .progress-fill {
@@ -149,11 +151,11 @@
   .question-card {
     background: rgba(255,255,255,0.04);
     border-radius: 18px;
-    padding: 32px 24px;
+    padding: 28px 24px;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     border: 1px solid rgba(255,255,255,0.06);
-    min-height: 130px;
+    min-height: 140px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -166,15 +168,31 @@
     margin-bottom: 10px;
   }
   .question-text {
-    font-size: 30px;
+    font-size: 28px;
     font-weight: 800;
     color: #f1f5f9;
-    line-height: 1.35;
+    line-height: 1.4;
+  }
+  .question-text.sentence-text {
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.7;
+    text-align: left;
+    color: #e2e8f0;
+  }
+  .blank {
+    display: inline-block;
+    min-width: 80px;
+    border-bottom: 2px dashed #a78bfa;
+    color: #a78bfa;
+    font-weight: 800;
+    text-align: center;
+    margin: 0 2px;
   }
   .question-hint {
     font-size: 13px;
     color: #475569;
-    margin-top: 10px;
+    margin-top: 12px;
   }
   .options { display: flex; flex-direction: column; gap: 10px; }
   .option-btn {
@@ -251,6 +269,13 @@
     color: #fca5a5;
   }
   .feedback .fb-title { font-weight: 800; margin-bottom: 4px; }
+  .feedback .fb-example {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    color: #94a3b8;
+    font-size: 13px;
+  }
   .btn-row { margin-top: 22px; text-align: center; }
   .btn {
     padding: 13px 32px;
@@ -293,6 +318,8 @@
     font-weight: 700;
     margin-bottom: 24px;
     letter-spacing: 0.5px;
+    background: rgba(59,130,246,0.15);
+    color: #60a5fa;
   }
   .result-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   .hidden { display: none !important; }
@@ -300,6 +327,7 @@
   @media (max-width: 480px) {
     .app { padding: 24px 18px; border-radius: 18px; }
     .question-text { font-size: 24px; }
+    .question-text.sentence-text { font-size: 16px; }
     .option-btn { font-size: 15px; padding: 13px 14px; }
     .result-score { font-size: 46px; }
     h1 { font-size: 21px; }
@@ -308,28 +336,28 @@
 </head>
 <body>
 <div class="app">
-  <h1>四六级词汇闯关</h1>
-  <p class="subtitle">形近词辨析 · 三档难度挑战</p>
+  <h1>四六级词汇学习</h1>
+  <p class="subtitle">单词辨析 + 造句填空 · 双模式学习</p>
 
   <!-- ==================== 首页 ==================== -->
   <div id="screen-home" class="screen active">
     <div class="home-box">
       <p>
-        看中文释义，从 4 个形近词中选出正确答案。<br>
-        选择难度开始挑战，每难度 20 题随机抽 8 题。
+        80 个四六级高频形近词，每个词配中文释义、英文例句和造句填空。<br>
+        选择模式开始，每轮随机抽 10 题。
       </p>
-      <div class="difficulty-grid">
-        <div class="diff-card easy" onclick="startGame('easy')">
-          <div class="diff-title">🌱 初级 <span class="diff-badge">基础形近词</span></div>
-          <div class="diff-desc">affect / effect、adapt / adopt 等经典易混词。不限时，适合热身。</div>
+      <div class="mode-grid">
+        <div class="mode-card word-mode" onclick="startGame('word')">
+          <div class="mode-title">📖 单词模式 <span class="mode-badge">看中文选英文</span></div>
+          <div class="mode-desc">给出中文释义，从 4 个形近词中选出正确单词，可点击 🔊 听发音。</div>
         </div>
-        <div class="diff-card medium" onclick="startGame('medium')">
-          <div class="diff-title">🔥 中级 <span class="diff-badge">进阶辨析</span></div>
-          <div class="diff-desc">considerable / considerate、industrial / industrious 等词形相近但含义迥异的词组。不限时。</div>
+        <div class="mode-card sentence-mode" onclick="startGame('sentence')">
+          <div class="mode-title">✍️ 造句模式 <span class="mode-badge">看句子选词填空</span></div>
+          <div class="mode-desc">给出含空格的英文句子和中文提示，从 4 个形近词中选出应填入的词。</div>
         </div>
-        <div class="diff-card hell" onclick="startGame('hell')">
-          <div class="diff-title">💀 地狱 <span class="diff-badge">限时 10 秒</span></div>
-          <div class="diff-desc">council / counsel、discreet / discrete 等极易混淆词。每题 10 秒，超时判错。</div>
+        <div class="mode-card mixed-mode" onclick="startGame('mixed')">
+          <div class="mode-title">🔀 混合模式 <span class="mode-badge">两种题型随机</span></div>
+          <div class="mode-desc">单词题与造句题随机交替出现，全面检验辨析和语境应用能力。</div>
         </div>
       </div>
     </div>
@@ -339,16 +367,16 @@
   <div id="screen-game" class="screen">
     <div class="hud">
       <div class="hud-left">
-        <span id="hud-diff-label">初级</span>
+        <span class="mode-tag" id="hud-mode-tag">单词模式</span>
         <span>得分 <span class="score-val" id="hud-score">0</span></span>
       </div>
-      <span class="timer safe" id="hud-timer">—</span>
+      <span id="hud-progress-text">1 / 10</span>
     </div>
     <div class="progress-bar">
       <div class="progress-fill" id="progress-fill"></div>
     </div>
     <div class="question-card">
-      <div class="question-label">中文释义</div>
+      <div class="question-label" id="question-label">中文释义</div>
       <div class="question-text" id="question-text">—</div>
       <div class="question-hint" id="question-hint"></div>
     </div>
@@ -367,8 +395,8 @@
       <div class="result-badge" id="result-badge"></div>
       <div class="result-detail" id="result-detail"></div>
       <div class="result-actions">
-        <button class="btn" onclick="restartSame()">再玩一次</button>
-        <button class="btn btn-outline" onclick="goHome()">选择难度</button>
+        <button class="btn" onclick="restartSame()">再练一次</button>
+        <button class="btn btn-outline" onclick="goHome()">选择模式</button>
       </div>
     </div>
   </div>
@@ -376,99 +404,145 @@
 
 <script>
 // ============================================================
-// 题库：共 60 题，三档难度各 20 题
-// 词汇来源：四六级高频形近词/易混词辨析考点
+// 词库：80 个四六级高频形近词/易混词
+// 每个词条包含：中文释义、英文例句（含空格）、辨析提示
 // ============================================================
-const QUESTION_POOL = [
-  // ==================== 初级：20 题 ====================
-  { level:'easy', meaning:'影响；假装', answer:'affect', distractors:['effect','affection','afflict'], hint:'动词，~ sb/sth 表示对……产生作用' },
-  { level:'easy', meaning:'结果；效果', answer:'effect', distractors:['affect','effort','afford'], hint:'名词，have an ~ on' },
-  { level:'easy', meaning:'适应；改编', answer:'adapt', distractors:['adopt','adept','admit'], hint:'~ to 适应新环境' },
-  { level:'easy', meaning:'采用；收养', answer:'adopt', distractors:['adapt','adept','adore'], hint:'~ a plan / a child' },
-  { level:'easy', meaning:'相当大/多的', answer:'considerable', distractors:['considerate','considering','considered'], hint:'修饰数量或程度，a ~ amount' },
-  { level:'easy', meaning:'体谅的；考虑周到的', answer:'considerate', distractors:['considerable','considering','considered'], hint:'形容人，It‘s ~ of you to...' },
-  { level:'easy', meaning:'经济的；节约的', answer:'economical', distractors:['economic','economy','economics'], hint:'形容省钱、划算' },
-  { level:'easy', meaning:'经济的；经济学的', answer:'economic', distractors:['economical','economy','ecologic'], hint:'~ growth / policy' },
-  { level:'easy', meaning:'工业的', answer:'industrial', distractors:['industrious','industry','industrialize'], hint:'~ revolution' },
-  { level:'easy', meaning:'勤奋的；努力的', answer:'industrious', distractors:['industrial','industry','industrialized'], hint:'形容人勤劳' },
-  { level:'easy', meaning:'推断；推论', answer:'infer', distractors:['imply','refer','prefer'], hint:'读者从文中 ~ 出含义' },
-  { level:'easy', meaning:'暗示；隐含', answer:'imply', distractors:['infer','reply','apply'], hint:'作者的话 ~ 了某种态度' },
-  { level:'easy', meaning:'历史的；历史上著名的', answer:'historic', distractors:['historical','history','historian'], hint:'a ~ moment / event' },
-  { level:'easy', meaning:'与历史有关的；历史学的', answer:'historical', distractors:['historic','history','historically'], hint:'~ research / novel' },
-  { level:'easy', meaning:'值得尊敬的', answer:'respectable', distractors:['respectful','respective','respected'], hint:'形容人或行为体面' },
-  { level:'easy', meaning:'尊敬人的；恭敬的', answer:'respectful', distractors:['respectable','respective','respected'], hint:'be ~ to sb' },
-  { level:'easy', meaning:'各自的；分别的', answer:'respective', distractors:['respectable','respectful','respected'], hint:'their ~ houses' },
-  { level:'easy', meaning:'谨慎的；小心的', answer:'discreet', distractors:['discrete','discreetly','discretion'], hint:'形容言行谨慎，不张扬' },
-  { level:'easy', meaning:'离散的；不连续的', answer:'discrete', distractors:['discreet','discreetly','discretion'], hint:'数学/统计用语，~ data' },
-  { level:'easy', meaning:'幻觉；错觉', answer:'illusion', distractors:['delusion','allusion','elusion'], hint:'视觉或认知上的假象' },
+const VOCAB = [
+  // ---------- 第 1 组：affect / effect / affection / afflict ----------
+  { word:'affect', meaning:'影响；假装', example:'The weather can ___ your mood.', exampleCn:'天气会影响你的心情。', hint:'动词，侧重“对……产生作用”', group:['affect','effect','affection','afflict'] },
+  { word:'effect', meaning:'结果；效果', example:'The new policy had a positive ___ on students.', exampleCn:'新政策对学生产生了积极影响。', hint:'名词，have an ~ on', group:['affect','effect','affection','afflict'] },
+  { word:'affection', meaning:'喜爱；感情', example:'She shows great ___ for her hometown.', exampleCn:'她对家乡怀有深厚的感情。', hint:'名词，~ for sb/sth', group:['affect','effect','affection','afflict'] },
+  { word:'afflict', meaning:'使痛苦；折磨', example:'The disease can ___ thousands of people.', exampleCn:'这种疾病会折磨成千上万的人。', hint:'动词，be ~ed by/with', group:['affect','effect','affection','afflict'] },
 
-  // ==================== 中级：20 题 ====================
-  { level:'medium', meaning:'明显的；清楚的', answer:'distinct', distractors:['distinctive','distinction','distinguish'], hint:'~ from，与……不同' },
-  { level:'medium', meaning:'有特色的；独特的', answer:'distinctive', distractors:['distinct','distinction','distinguish'], hint:'~ feature / style' },
-  { level:'medium', meaning:'强烈的；紧张的', answer:'intense', distractors:['intensive','intensity','intensify'], hint:'~ heat / competition' },
-  { level:'medium', meaning:'加强的；集中的', answer:'intensive', distractors:['intense','intensity','intensify'], hint:'~ reading / course' },
-  { level:'medium', meaning:'难以置信的', answer:'incredible', distractors:['incredulous','incredibly','credible'], hint:'形容事物令人难以置信' },
-  { level:'medium', meaning:'不相信的；怀疑的', answer:'incredulous', distractors:['incredible','incredibly','credible'], hint:'形容人的表情或态度' },
-  { level:'medium', meaning:'推动；驱使', answer:'impel', distractors:['compel','expel','repel'], hint:'~ sb to do sth' },
-  { level:'medium', meaning:'强迫；迫使', answer:'compel', distractors:['impel','expel','repel'], hint:'~ sb to do sth（语气更强）' },
-  { level:'medium', meaning:'补足物；补全', answer:'complement', distractors:['compliment','complementary','complimentary'], hint:'~ to sth，与……互补' },
-  { level:'medium', meaning:'恭维；称赞', answer:'compliment', distractors:['complement','complementary','complimentary'], hint:'pay sb a ~' },
-  { level:'medium', meaning:'议事机构；委员会', answer:'council', distractors:['counsel','consul','console'], hint:'city ~ / student ~' },
-  { level:'medium', meaning:'忠告；商议', answer:'counsel', distractors:['council','consul','console'], hint:'~ sb to do sth' },
-  { level:'medium', meaning:'有缺陷的；有毛病的', answer:'defective', distractors:['deficient','defect','deficit'], hint:'~ goods / eyesight' },
-  { level:'medium', meaning:'不足的；缺乏的', answer:'deficient', distractors:['defective','defect','deficit'], hint:'~ in vitamin C' },
-  { level:'medium', meaning:'防止；避免', answer:'avert', distractors:['avoid','averse','aversion'], hint:'~ disaster / crisis' },
-  { level:'medium', meaning:'避免；避开', answer:'avoid', distractors:['avert','averse','aversion'], hint:'~ doing sth' },
-  { level:'medium', meaning:'用电的；电动的', answer:'electrical', distractors:['electric','electricity','electrify'], hint:'~ equipment / engineer' },
-  { level:'medium', meaning:'电的；导电的', answer:'electric', distractors:['electrical','electricity','electrify'], hint:'~ car / shock' },
-  { level:'medium', meaning:'暗含的；含蓄的', answer:'implicit', distractors:['explicit','implication','implicate'], hint:'~ meaning / trust' },
-  { level:'medium', meaning:'明晰的；直截了当的', answer:'explicit', distractors:['implicit','implication','implicate'], hint:'~ instructions / warning' },
+  // ---------- 第 2 组：adapt / adopt / adept / admit ----------
+  { word:'adapt', meaning:'适应；改编', example:'It takes time to ___ to a new environment.', exampleCn:'适应新环境需要时间。', hint:'~ to 适应', group:['adapt','adopt','adept','admit'] },
+  { word:'adopt', meaning:'采用；收养', example:'The company decided to ___ a new strategy.', exampleCn:'公司决定采用新策略。', hint:'~ a plan / a child', group:['adapt','adopt','adept','admit'] },
+  { word:'adept', meaning:'熟练的；内行的', example:'She is ___ at handling difficult customers.', exampleCn:'她擅长应对难缠的顾客。', hint:'be ~ at/in doing sth', group:['adapt','adopt','adept','admit'] },
+  { word:'admit', meaning:'承认；准许进入', example:'He ___ed that he had made a mistake.', exampleCn:'他承认自己犯了错。', hint:'~ doing sth / ~ to', group:['adapt','adopt','adept','admit'] },
 
-  // ==================== 地狱：20 题 ====================
-  { level:'hell', meaning:'幻觉；错觉', answer:'illusion', distractors:['delusion','allusion','elusion'], hint:'视觉/感知上的假象，optical ~' },
-  { level:'hell', meaning:'欺骗；妄想', answer:'delusion', distractors:['illusion','allusion','elusion'], hint:'精神层面的错误信念' },
-  { level:'hell', meaning:'暗指；典故', answer:'allusion', distractors:['illusion','delusion','elusion'], hint:'make an ~ to sth' },
-  { level:'hell', meaning:'有特色的；独特的', answer:'distinctive', distractors:['distinct','distinctly','distinction'], hint:'区别于同类，~ feature' },
-  { level:'hell', meaning:'清楚的；明显的', answer:'distinct', distractors:['distinctive','distinctly','distinction'], hint:'~ from，清晰可辨' },
-  { level:'hell', meaning:'预兆；前兆', answer:'premonition', distractors:['premonitory','premise','premium'], hint:'have a ~ of danger' },
-  { level:'hell', meaning:'前提；假定', answer:'premise', distractors:['premonition','premium','premises'], hint:'on the ~ that...' },
-  { level:'hell', meaning:'保险费；溢价', answer:'premium', distractors:['premise','premonition','premises'], hint:'pay a ~ / at a ~' },
-  { level:'hell', meaning:'平凡的；普通的', answer:'mediocre', distractors:['mediate','meditate','medium'], hint:'~ performance / student' },
-  { level:'hell', meaning:'调解；斡旋', answer:'mediate', distractors:['mediocre','meditate','medium'], hint:'~ between A and B' },
-  { level:'hell', meaning:'沉思；冥想', answer:'meditate', distractors:['mediocre','mediate','medium'], hint:'~ on sth' },
-  { level:'hell', meaning:'丰富的；多产的', answer:'prolific', distractors:['profound','profuse','profitable'], hint:'~ writer / scorer' },
-  { level:'hell', meaning:'深刻的；深远的', answer:'profound', distractors:['prolific','profuse','profitable'], hint:'~ impact / knowledge' },
-  { level:'hell', meaning:'大量的；慷慨的', answer:'profuse', distractors:['prolific','profound','profitable'], hint:'~ apologies / bleeding' },
-  { level:'hell', meaning:'短暂的；转瞬即逝的', answer:'transient', distractors:['transparent','transition','transit'], hint:'~ pleasure / population' },
-  { level:'hell', meaning:'透明的；显而易见的', answer:'transparent', distractors:['transient','transition','transit'], hint:'~ material / meaning' },
-  { level:'hell', meaning:'过渡；转变', answer:'transition', distractors:['transient','transparent','transit'], hint:'~ period / from A to B' },
-  { level:'hell', meaning:'模糊的；不明确的', answer:'ambiguous', distractors:['ambitious','ambivalent','amphibious'], hint:'~ statement / attitude' },
-  { level:'hell', meaning:'有雄心的；有抱负的', answer:'ambitious', distractors:['ambiguous','ambivalent','amphibious'], hint:'~ plan / person' },
-  { level:'hell', meaning:'矛盾的；好恶交织的', answer:'ambivalent', distractors:['ambiguous','ambitious','amphibious'], hint:'~ feelings / attitude' }
+  // ---------- 第 3 组：considerable / considerate / consider / consideration ----------
+  { word:'considerable', meaning:'相当大/多的', example:'The project requires a ___ amount of time.', exampleCn:'这个项目需要相当多的时间。', hint:'修饰数量或程度', group:['considerable','considerate','consider','consideration'] },
+  { word:'considerate', meaning:'体谅的；考虑周到的', example:'It was very ___ of you to help the elderly man.', exampleCn:'你帮助那位老人真是太体贴了。', hint:'形容人，It‘s ~ of you', group:['considerable','considerate','consider','consideration'] },
+  { word:'consider', meaning:'考虑；认为', example:'We should ___ all the options before deciding.', exampleCn:'决定之前我们应该考虑所有选项。', hint:'动词，~ doing sth', group:['considerable','considerate','consider','consideration'] },
+  { word:'consideration', meaning:'考虑；体贴', example:'Please take the cost into ___.', exampleCn:'请把成本考虑进去。', hint:'take sth into ~', group:['considerable','considerate','consider','consideration'] },
+
+  // ---------- 第 4 组：economic / economical / economy / economics ----------
+  { word:'economic', meaning:'经济的；经济学的', example:'The country is experiencing rapid ___ growth.', exampleCn:'该国正经历快速经济增长。', hint:'~ growth / policy', group:['economic','economical','economy','economics'] },
+  { word:'economical', meaning:'经济的；节约的', example:'This car is very ___ on fuel.', exampleCn:'这辆车非常省油。', hint:'形容省钱、划算', group:['economic','economical','economy','economics'] },
+  { word:'economy', meaning:'经济；节约', example:'The global ___ is recovering slowly.', exampleCn:'全球经济正在缓慢复苏。', hint:'名词，global ~', group:['economic','economical','economy','economics'] },
+  { word:'economics', meaning:'经济学', example:'She majored in ___ at university.', exampleCn:'她在大学主修经济学。', hint:'学科名称，作单数', group:['economic','economical','economy','economics'] },
+
+  // ---------- 第 5 组：industrial / industrious / industry / industrialize ----------
+  { word:'industrial', meaning:'工业的', example:'The ___ revolution changed the world.', exampleCn:'工业革命改变了世界。', hint:'~ revolution / area', group:['industrial','industrious','industry','industrialize'] },
+  { word:'industrious', meaning:'勤奋的；努力的', example:'He is an ___ student who never gives up.', exampleCn:'他是个从不放弃的勤奋学生。', hint:'形容人勤劳', group:['industrial','industrious','industry','industrialize'] },
+  { word:'industry', meaning:'工业；行业', example:'The tourism ___ provides many jobs.', exampleCn:'旅游业提供了许多就业机会。', hint:'名词，the tourism ~', group:['industrial','industrious','industry','industrialize'] },
+  { word:'industrialize', meaning:'使工业化', example:'The government plans to ___ the rural areas.', exampleCn:'政府计划使农村地区工业化。', hint:'动词，~ a country', group:['industrial','industrious','industry','industrialize'] },
+
+  // ---------- 第 6 组：infer / imply / refer / prefer ----------
+  { word:'infer', meaning:'推断；推论', example:'From his tone, we can ___ that he is angry.', exampleCn:'从他的语气我们可以推断他生气了。', hint:'读者从信息中 ~', group:['infer','imply','refer','prefer'] },
+  { word:'imply', meaning:'暗示；隐含', example:'His silence ___ed that he disagreed.', exampleCn:'他的沉默暗示他不同意。', hint:'作者/说话人 ~', group:['infer','imply','refer','prefer'] },
+  { word:'refer', meaning:'提到；参考', example:'Please ___ to the chart on page 10.', exampleCn:'请参考第10页的图表。', hint:'~ to sth', group:['infer','imply','refer','prefer'] },
+  { word:'prefer', meaning:'更喜欢；宁愿', example:'I ___ tea to coffee.', exampleCn:'比起咖啡我更喜欢茶。', hint:'~ A to B', group:['infer','imply','refer','prefer'] },
+
+  // ---------- 第 7 组：historic / historical / history / historian ----------
+  { word:'historic', meaning:'历史上著名的；有历史意义的', example:'The signing of the treaty was a ___ moment.', exampleCn:'条约的签署是一个历史性时刻。', hint:'a ~ moment / event', group:['historic','historical','history','historian'] },
+  { word:'historical', meaning:'与历史有关的；历史学的', example:'She is doing ___ research on ancient China.', exampleCn:'她正在做中国古代的历史研究。', hint:'~ research / novel', group:['historic','historical','history','historian'] },
+  { word:'history', meaning:'历史', example:'He is interested in Chinese ___.', exampleCn:'他对中国历史感兴趣。', hint:'名词，in ~', group:['historic','historical','history','historian'] },
+  { word:'historian', meaning:'历史学家', example:'The ___ wrote a book about the war.', exampleCn:'这位历史学家写了一本关于那场战争的书。', hint:'指人，a famous ~', group:['historic','historical','history','historian'] },
+
+  // ---------- 第 8 组：respectable / respectful / respective / respect ----------
+  { word:'respectable', meaning:'值得尊敬的；体面的', example:'He comes from a ___ family.', exampleCn:'他出身于体面的家庭。', hint:'形容人或行为体面', group:['respectable','respectful','respective','respect'] },
+  { word:'respectful', meaning:'尊敬人的；恭敬的', example:'Students should be ___ to their teachers.', exampleCn:'学生应该尊敬老师。', hint:'be ~ to sb', group:['respectable','respectful','respective','respect'] },
+  { word:'respective', meaning:'各自的；分别的', example:'They went back to their ___ homes.', exampleCn:'他们各自回了家。', hint:'their ~ houses', group:['respectable','respectful','respective','respect'] },
+  { word:'respect', meaning:'尊敬；方面', example:'We should ___ other people‘s opinions.', exampleCn:'我们应该尊重别人的意见。', hint:'动词/名词，~ for sb', group:['respectable','respectful','respective','respect'] },
+
+  // ---------- 第 9 组：discreet / discrete / discretion / discrepancy ----------
+  { word:'discreet', meaning:'谨慎的；小心的', example:'Please be ___ about this sensitive matter.', exampleCn:'请对这件敏感的事保持谨慎。', hint:'形容言行谨慎', group:['discreet','discrete','discretion','discrepancy'] },
+  { word:'discrete', meaning:'离散的；不连续的', example:'The data is divided into ___ categories.', exampleCn:'数据被分成离散的类别。', hint:'数学/统计用语', group:['discreet','discrete','discretion','discrepancy'] },
+  { word:'discretion', meaning:'自行决定权；谨慎', example:'The final decision is at your ___.', exampleCn:'最终决定权在你手上。', hint:'at one‘s ~', group:['discreet','discrete','discretion','discrepancy'] },
+  { word:'discrepancy', meaning:'差异；不一致', example:'There is a ___ between the two reports.', exampleCn:'两份报告之间存在差异。', hint:'a ~ between A and B', group:['discreet','discrete','discretion','discrepancy'] },
+
+  // ---------- 第 10 组：distinct / distinctive / distinction / distinguish ----------
+  { word:'distinct', meaning:'清楚的；明显的；不同的', example:'The two species are ___ from each other.', exampleCn:'这两个物种彼此不同。', hint:'~ from，清晰可辨', group:['distinct','distinctive','distinction','distinguish'] },
+  { word:'distinctive', meaning:'有特色的；独特的', example:'The bird has a ___ call.', exampleCn:'这种鸟有独特的叫声。', hint:'~ feature / style', group:['distinct','distinctive','distinction','distinguish'] },
+  { word:'distinction', meaning:'区别；卓越', example:'There is a clear ___ between the two concepts.', exampleCn:'这两个概念之间有明显的区别。', hint:'名词，a ~ between', group:['distinct','distinctive','distinction','distinguish'] },
+  { word:'distinguish', meaning:'区分；辨别', example:'Can you ___ between these two colors?', exampleCn:'你能区分这两种颜色吗？', hint:'~ A from B / ~ between', group:['distinct','distinctive','distinction','distinguish'] },
+
+  // ---------- 第 11 组：intense / intensive / intensity / intensify ----------
+  { word:'intense', meaning:'强烈的；紧张的', example:'The competition is very ___.', exampleCn:'竞争非常激烈。', hint:'~ heat / competition', group:['intense','intensive','intensity','intensify'] },
+  { word:'intensive', meaning:'加强的；集中的', example:'She took an ___ course in English.', exampleCn:'她参加了一个英语强化课程。', hint:'~ reading / course', group:['intense','intensive','intensity','intensify'] },
+  { word:'intensity', meaning:'强度；烈度', example:'The ___ of the earthquake was surprising.', exampleCn:'地震的强度令人惊讶。', hint:'名词，the ~ of sth', group:['intense','intensive','intensity','intensify'] },
+  { word:'intensify', meaning:'加强；加剧', example:'The government decided to ___ the efforts.', exampleCn:'政府决定加大力度。', hint:'动词，~ efforts', group:['intense','intensive','intensity','intensify'] },
+
+  // ---------- 第 12 组：incredible / incredulous / credible / credulous ----------
+  { word:'incredible', meaning:'难以置信的', example:'The view from the mountain is ___.', exampleCn:'山上的景色令人难以置信。', hint:'形容事物令人难以置信', group:['incredible','incredulous','credible','credulous'] },
+  { word:'incredulous', meaning:'不相信的；怀疑的', example:'She gave me an ___ look.', exampleCn:'她给了我一个怀疑的眼神。', hint:'形容人的表情或态度', group:['incredible','incredulous','credible','credulous'] },
+  { word:'credible', meaning:'可信的；可靠的', example:'The witness gave a ___ account.', exampleCn:'证人提供了可信的陈述。', hint:'~ evidence / source', group:['incredible','incredulous','credible','credulous'] },
+  { word:'credulous', meaning:'轻信的；易受骗的', example:'He is too ___ to believe such stories.', exampleCn:'他太轻信了，竟相信这种故事。', hint:'形容人容易上当', group:['incredible','incredulous','credible','credulous'] },
+
+  // ---------- 第 13 组：complement / compliment / complementary / complimentary ----------
+  { word:'complement', meaning:'补足物；补全', example:'The wine is a perfect ___ to the meal.', exampleCn:'这款酒与这顿饭完美搭配。', hint:'~ to sth，与……互补', group:['complement','compliment','complementary','complimentary'] },
+  { word:'compliment', meaning:'恭维；称赞', example:'He paid her a nice ___ on her dress.', exampleCn:'他称赞了她的裙子。', hint:'pay sb a ~', group:['complement','compliment','complementary','complimentary'] },
+  { word:'complementary', meaning:'互补的', example:'The two courses are ___ to each other.', exampleCn:'这两门课程互为补充。', hint:'~ to each other', group:['complement','compliment','complementary','complimentary'] },
+  { word:'complimentary', meaning:'免费的；称赞的', example:'The hotel offers ___ breakfast.', exampleCn:'酒店提供免费早餐。', hint:'~ ticket / remark', group:['complement','compliment','complementary','complimentary'] },
+
+  // ---------- 第 14 组：council / counsel / consul / console ----------
+  { word:'council', meaning:'议事机构；委员会', example:'The city ___ voted against the plan.', exampleCn:'市议会投票反对该计划。', hint:'city ~ / student ~', group:['council','counsel','consul','console'] },
+  { word:'counsel', meaning:'忠告；商议', example:'He gave me wise ___ on the matter.', exampleCn:'他就此事给了我明智的建议。', hint:'~ sb / give ~', group:['council','counsel','consul','console'] },
+  { word:'consul', meaning:'领事', example:'She works at the Chinese ___ in New York.', exampleCn:'她在纽约的中国领事馆工作。', hint:'外交官，a ~ general', group:['council','counsel','consul','console'] },
+  { word:'console', meaning:'安慰；控制台', example:'She tried to ___ the crying child.', exampleCn:'她试图安慰哭泣的孩子。', hint:'动词，~ sb', group:['council','counsel','consul','console'] },
+
+  // ---------- 第 15 组：defective / deficient / defect / deficit ----------
+  { word:'defective', meaning:'有缺陷的；有毛病的', example:'The store recalled the ___ products.', exampleCn:'商店召回了有缺陷的产品。', hint:'~ goods / eyesight', group:['defective','deficient','defect','deficit'] },
+  { word:'deficient', meaning:'不足的；缺乏的', example:'His diet is ___ in vitamins.', exampleCn:'他的饮食缺乏维生素。', hint:'~ in sth', group:['defective','deficient','defect','deficit'] },
+  { word:'defect', meaning:'缺陷；瑕疵', example:'The car has a minor ___ in the engine.', exampleCn:'这辆车的发动机有个小缺陷。', hint:'名词，a ~ in sth', group:['defective','deficient','defect','deficit'] },
+  { word:'deficit', meaning:'赤字；亏损', example:'The country has a large trade ___.', exampleCn:'该国存在巨额贸易赤字。', hint:'trade ~ / budget ~', group:['defective','deficient','defect','deficit'] },
+
+  // ---------- 第 16 组：avert / avoid / averse / aversion ----------
+  { word:'avert', meaning:'防止；避免（灾难）', example:'Quick action helped ___ a disaster.', exampleCn:'迅速行动帮助避免了一场灾难。', hint:'~ disaster / crisis', group:['avert','avoid','averse','aversion'] },
+  { word:'avoid', meaning:'避免；避开', example:'You should ___ eating too much sugar.', exampleCn:'你应该避免吃太多糖。', hint:'~ doing sth', group:['avert','avoid','averse','aversion'] },
+  { word:'averse', meaning:'反对的；不乐意的', example:'He is not ___ to hard work.', exampleCn:'他不怕辛苦工作。', hint:'be ~ to sth', group:['avert','avoid','averse','aversion'] },
+  { word:'aversion', meaning:'厌恶；反感', example:'She has a strong ___ to violence.', exampleCn:'她非常厌恶暴力。', hint:'have an ~ to sth', group:['avert','avoid','averse','aversion'] },
+
+  // ---------- 第 17 组：electrical / electric / electricity / electrify ----------
+  { word:'electrical', meaning:'用电的；电动的', example:'He works as an ___ engineer.', exampleCn:'他是一名电气工程师。', hint:'~ equipment / engineer', group:['electrical','electric','electricity','electrify'] },
+  { word:'electric', meaning:'电的；导电的', example:'She drives an ___ car.', exampleCn:'她开一辆电动汽车。', hint:'~ car / shock', group:['electrical','electric','electricity','electrify'] },
+  { word:'electricity', meaning:'电；电力', example:'The storm cut off the ___.', exampleCn:'暴风雨切断了电力供应。', hint:'名词，cut off ~', group:['electrical','electric','electricity','electrify'] },
+  { word:'electrify', meaning:'使 electrify；使震惊', example:'The performance ___ied the audience.', exampleCn:'这场表演让观众震惊。', hint:'动词，~ the audience', group:['electrical','electric','electricity','electrify'] },
+
+  // ---------- 第 18 组：implicit / explicit / implication / implicate ----------
+  { word:'implicit', meaning:'暗含的；含蓄的', example:'There is an ___ warning in his words.', exampleCn:'他的话里暗含警告。', hint:'~ meaning / trust', group:['implicit','explicit','implication','implicate'] },
+  { word:'explicit', meaning:'明晰的；直截了当的', example:'The teacher gave ___ instructions.', exampleCn:'老师给出了明确的指示。', hint:'~ instructions / warning', group:['implicit','explicit','implication','implicate'] },
+  { word:'implication', meaning:'含义；暗示；影响', example:'The ___ of the decision are far-reaching.', exampleCn:'这一决定的影响深远。', hint:'名词，the ~ of sth', group:['implicit','explicit','implication','implicate'] },
+  { word:'implicate', meaning:'牵连；涉及', example:'He was ___ed in the scandal.', exampleCn:'他被牵连进丑闻。', hint:'be ~ed in sth', group:['implicit','explicit','implication','implicate'] },
+
+  // ---------- 第 19 组：illusion / delusion / allusion / elusion ----------
+  { word:'illusion', meaning:'幻觉；错觉', example:'The mirror creates an ___ of space.', exampleCn:'镜子营造出空间错觉。', hint:'视觉/感知上的假象', group:['illusion','delusion','allusion','elusion'] },
+  { word:'delusion', meaning:'欺骗；妄想', example:'He suffers from the ___ that he is rich.', exampleCn:'他妄想自己很富有。', hint:'精神层面的错误信念', group:['illusion','delusion','allusion','elusion'] },
+  { word:'allusion', meaning:'暗指；典故', example:'The poem makes an ___ to Greek mythology.', exampleCn:'这首诗暗指希腊神话。', hint:'make an ~ to sth', group:['illusion','delusion','allusion','elusion'] },
+  { word:'elusion', meaning:'逃避；规避', example:'The ___ of taxes is illegal.', exampleCn:'逃税是违法的。', hint:'名词，~ of responsibility', group:['illusion','delusion','allusion','elusion'] },
+
+  // ---------- 第 20 组：transient / transparent / transition / transit ----------
+  { word:'transient', meaning:'短暂的；转瞬即逝的', example:'Fame can be ___ and fleeting.', exampleCn:'名声可能短暂而转瞬即逝。', hint:'~ pleasure / population', group:['transient','transparent','transition','transit'] },
+  { word:'transparent', meaning:'透明的；显而易见的', example:'The water in the lake is ___.', exampleCn:'湖里的水是透明的。', hint:'~ material / meaning', group:['transient','transparent','transition','transit'] },
+  { word:'transition', meaning:'过渡；转变', example:'The country is in a period of ___.', exampleCn:'该国正处于过渡时期。', hint:'~ period / from A to B', group:['transient','transparent','transition','transit'] },
+  { word:'transit', meaning:'运输；经过', example:'The goods were damaged in ___.', exampleCn:'货物在运输途中受损。', hint:'in ~', group:['transient','transparent','transition','transit'] }
 ];
 
 // ============================================================
 // 配置
 // ============================================================
-const QUESTIONS_PER_GAME = 8;
-const DIFFICULTY_CONFIG = {
-  easy:   { label: '初级', scorePerQ: 10, timeLimit: 0 },
-  medium: { label: '中级', scorePerQ: 15, timeLimit: 0 },
-  hell:   { label: '地狱', scorePerQ: 20, timeLimit: 10 }
-};
+const QUESTIONS_PER_GAME = 10;
 
 // ============================================================
 // 状态
 // ============================================================
-let currentDifficulty = 'easy';
+let currentMode = 'word';   // word / sentence / mixed
 let gameQuestions = [];
 let qIndex = 0;
 let score = 0;
 let correctCount = 0;
 let answered = false;
-let timerId = null;
-let timeLeft = 0;
-let totalTime = 0;
 
 // ============================================================
 // 语音合成
@@ -517,39 +591,65 @@ function showScreen(id) {
 // ============================================================
 // 游戏流程
 // ============================================================
-function startGame(diff) {
-  currentDifficulty = diff;
-  const cfg = DIFFICULTY_CONFIG[diff];
-  const pool = QUESTION_POOL.filter(q => q.level === diff);
-  gameQuestions = shuffle(pool).slice(0, QUESTIONS_PER_GAME);
+function startGame(mode) {
+  currentMode = mode;
+  const pool = shuffle(VOCAB).slice(0, QUESTIONS_PER_GAME);
+  gameQuestions = pool.map((item, i) => {
+    let qType;
+    if (mode === 'mixed') {
+      qType = (i % 2 === 0) ? 'word' : 'sentence';
+    } else {
+      qType = mode;
+    }
+    return { ...item, type: qType };
+  });
 
   qIndex = 0;
   score = 0;
   correctCount = 0;
-  totalTime = 0;
-  clearTimer();
 
-  document.getElementById('hud-diff-label').textContent = cfg.label;
+  const tag = document.getElementById('hud-mode-tag');
+  if (mode === 'word') { tag.textContent = '单词模式'; tag.className = 'mode-tag'; }
+  else if (mode === 'sentence') { tag.textContent = '造句模式'; tag.className = 'mode-tag sentence'; }
+  else { tag.textContent = '混合模式'; tag.className = 'mode-tag'; }
+
   document.getElementById('hud-score').textContent = '0';
   document.getElementById('progress-fill').style.width = '0%';
-
   showScreen('screen-game');
   renderQuestion();
 }
 
 function renderQuestion() {
   answered = false;
-  clearTimer();
   document.getElementById('btn-next').style.display = 'none';
   const fb = document.getElementById('feedback');
   fb.className = 'feedback';
   fb.innerHTML = '';
 
   const q = gameQuestions[qIndex];
-  document.getElementById('question-text').textContent = q.meaning;
-  document.getElementById('question-hint').textContent = '从下列形近词中选出对应英文';
+  const labelEl = document.getElementById('question-label');
+  const textEl = document.getElementById('question-text');
+  const hintEl = document.getElementById('question-hint');
 
-  const allOpts = shuffle([q.answer, ...q.distractors]);
+  if (q.type === 'word') {
+    labelEl.textContent = '中文释义';
+    textEl.className = 'question-text';
+    textEl.textContent = q.meaning;
+    hintEl.textContent = '从下列形近词中选出对应英文';
+  } else {
+    labelEl.textContent = '造句填空 · ' + q.exampleCn;
+    textEl.className = 'question-text sentence-text';
+    // 把 example 中的 ___ 替换成带样式的空格
+    const html = q.example.replace(/___/g, '<span class="blank">?</span>');
+    textEl.innerHTML = html;
+    hintEl.textContent = '选择应填入空格的单词';
+  }
+
+  // 构造选项：从同组词中取正确答案 + 3 个干扰项
+  const groupWords = q.group.filter(w => w !== q.word);
+  const distractors = shuffle(groupWords).slice(0, 3);
+  const allOpts = shuffle([q.word, ...distractors]);
+
   const container = document.getElementById('options-container');
   container.innerHTML = '';
   const letters = ['A','B','C','D'];
@@ -563,57 +663,37 @@ function renderQuestion() {
       <span class="word-text">${word}</span>
       <span class="speaker" onclick="speakWord('${word}', event)" title="朗读发音">🔊</span>
     `;
-    btn.addEventListener('click', () => selectAnswer(btn, q.answer, word));
+    btn.addEventListener('click', () => selectAnswer(btn, q.word, word));
     container.appendChild(btn);
   });
 
-  // 地狱难度：启动计时器
-  const cfg = DIFFICULTY_CONFIG[currentDifficulty];
-  const timerEl = document.getElementById('hud-timer');
-  if (cfg.timeLimit > 0) {
-    timeLeft = cfg.timeLimit;
-    timerEl.textContent = timeLeft + 's';
-    timerEl.className = 'timer safe';
-    timerEl.style.display = '';
-    timerId = setInterval(() => {
-      timeLeft--;
-      if (timeLeft <= 3) timerEl.className = 'timer';
-      timerEl.textContent = timeLeft + 's';
-      if (timeLeft <= 0) {
-        clearTimer();
-        if (!answered) timeoutAnswer(q.answer);
-      }
-    }, 1000);
-  } else {
-    timerEl.style.display = 'none';
-  }
+  document.getElementById('hud-progress-text').textContent = (qIndex + 1) + ' / ' + gameQuestions.length;
 }
 
 function selectAnswer(btn, correctAnswer, selectedWord) {
   if (answered) return;
   answered = true;
-  clearTimer();
 
-  const cfg = DIFFICULTY_CONFIG[currentDifficulty];
   const allBtns = document.querySelectorAll('.option-btn');
   allBtns.forEach(b => b.disabled = true);
 
   const isCorrect = selectedWord === correctAnswer;
   const fb = document.getElementById('feedback');
+  const q = gameQuestions[qIndex];
 
   if (isCorrect) {
     btn.classList.add('correct');
-    score += cfg.scorePerQ;
+    score += 10;
     correctCount++;
     fb.className = 'feedback correct-fb show';
-    fb.innerHTML = `<div class="fb-title">✓ 正确 +${cfg.scorePerQ}</div>${gameQuestions[qIndex].hint}`;
+    fb.innerHTML = `<div class="fb-title">✓ 正确 +10</div>${q.hint}<div class="fb-example">例句：${q.example.replace('___', `<b>${q.word}</b>`)}<br>${q.exampleCn}</div>`;
   } else {
     btn.classList.add('wrong');
     allBtns.forEach(b => {
       if (b.dataset.word === correctAnswer) b.classList.add('reveal-correct');
     });
     fb.className = 'feedback wrong-fb show';
-    fb.innerHTML = `<div class="fb-title">✗ 正确答案：${correctAnswer}</div>${gameQuestions[qIndex].hint}`;
+    fb.innerHTML = `<div class="fb-title">✗ 正确答案：${correctAnswer}</div>${q.hint}<div class="fb-example">例句：${q.example.replace('___', `<b>${q.word}</b>`)}<br>${q.exampleCn}</div>`;
   }
 
   document.getElementById('hud-score').textContent = score;
@@ -621,29 +701,11 @@ function selectAnswer(btn, correctAnswer, selectedWord) {
   showNextBtn();
 }
 
-function timeoutAnswer(correctAnswer) {
-  answered = true;
-  const allBtns = document.querySelectorAll('.option-btn');
-  allBtns.forEach(b => {
-    b.disabled = true;
-    if (b.dataset.word === correctAnswer) b.classList.add('reveal-correct');
-  });
-  document.getElementById('hud-timer').textContent = '0s';
-  const fb = document.getElementById('feedback');
-  fb.className = 'feedback wrong-fb show';
-  fb.innerHTML = `<div class="fb-title">⏰ 超时！正确答案：${correctAnswer}</div>${gameQuestions[qIndex].hint}`;
-  updateProgress();
-  showNextBtn();
-}
-
 function showNextBtn() {
   const btn = document.getElementById('btn-next');
   btn.style.display = 'inline-block';
-  if (qIndex >= gameQuestions.length - 1) {
-    btn.textContent = '查看结果 →';
-  } else {
-    btn.textContent = '下一题 →';
-  }
+  if (qIndex >= gameQuestions.length - 1) btn.textContent = '查看结果 →';
+  else btn.textContent = '下一题 →';
 }
 
 function updateProgress() {
@@ -654,27 +716,18 @@ function updateProgress() {
 function nextQuestion() {
   if (!answered) return;
   qIndex++;
-  if (qIndex < gameQuestions.length) {
-    renderQuestion();
-  } else {
-    showResult();
-  }
-}
-
-function clearTimer() {
-  if (timerId) { clearInterval(timerId); timerId = null; }
+  if (qIndex < gameQuestions.length) renderQuestion();
+  else showResult();
 }
 
 // ============================================================
 // 结算
 // ============================================================
 function showResult() {
-  clearTimer();
   speechSynthesis.cancel();
   showScreen('screen-result');
 
-  const cfg = DIFFICULTY_CONFIG[currentDifficulty];
-  const maxScore = QUESTIONS_PER_GAME * cfg.scorePerQ;
+  const maxScore = QUESTIONS_PER_GAME * 10;
   const pct = score / maxScore;
 
   let stars = 1;
@@ -685,28 +738,18 @@ function showResult() {
 
   const starEl = document.getElementById('result-stars');
   starEl.textContent = '★'.repeat(stars) + '☆'.repeat(5 - stars);
-  starEl.style.color = currentDifficulty === 'hell' ? '#f87171' : (currentDifficulty === 'medium' ? '#fbbf24' : '#4ade80');
+  starEl.style.color = '#60a5fa';
 
   document.getElementById('result-score').textContent = score;
-  document.getElementById('result-badge').textContent = cfg.label + ' · ' + (stars >= 4 ? '表现优异' : stars >= 3 ? '继续加油' : '再练练吧');
-  document.getElementById('result-badge').style.background = currentDifficulty === 'hell' ? 'rgba(239,68,68,0.15)' : (currentDifficulty === 'medium' ? 'rgba(245,158,11,0.15)' : 'rgba(34,197,94,0.15)');
-  document.getElementById('result-badge').style.color = currentDifficulty === 'hell' ? '#f87171' : (currentDifficulty === 'medium' ? '#fbbf24' : '#4ade80');
-
+  const modeLabel = currentMode === 'word' ? '单词模式' : (currentMode === 'sentence' ? '造句模式' : '混合模式');
+  document.getElementById('result-badge').textContent = modeLabel + ' · ' + (stars >= 4 ? '掌握良好' : stars >= 3 ? '继续巩固' : '再练一遍');
   document.getElementById('result-detail').textContent =
     `共 ${QUESTIONS_PER_GAME} 题，答对 ${correctCount} 题，正确率 ${Math.round((correctCount / QUESTIONS_PER_GAME) * 100)}%`;
 }
 
-function restartSame() {
-  startGame(currentDifficulty);
-}
+function restartSame() { startGame(currentMode); }
+function goHome() { speechSynthesis.cancel(); showScreen('screen-home'); }
 
-function goHome() {
-  clearTimer();
-  speechSynthesis.cancel();
-  showScreen('screen-home');
-}
-
-// 初始化
 loadVoices();
 </script>
 </body>
